@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <title>Todo App</title>
+    </head>
+
+    <style>
+        .hidden {
+            display: none;
+        }
+        ul {
+            list-style: none;
+            padding:0;
+            margin: 0;
+        }
+        </style>
+    <body>
+        <form id="form">
+            <input type="text" id="description" name="description">
+            <input type="submit" value="Create">
+        </form>
+        <div class = "hidden" id = "error" style="display:none;"> Something went wrong! </div>
+        <ul id="todos">
+            {% for d in data%}
+            <li> <input class = "check-completed"  data-id="{{ d.id}}"  type = "checkbox" {% if d.checked %} checked {% endif %}/> {{d.description }}</li>
+            {% endfor %}
+        </ul>
+        <script>
+            console.log('test '+ document.getElementById('description').value);
+            document.getElementById('form').onsubmit = function(e) {
+               e.preventDefault();
+               console.log("twat");
+               fetch('/todos/create', {
+                            method: 'POST',
+                            headers: 
+                            {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({'description':document.getElementById('description').value
+                               })
+                })
+                .then(function(response) {
+                     return response.json();
+                })
+                .then(function(response) {
+                     console.log(response);
+                     const liItem= document.createElement('Li');
+                     liItem.innerHTML = response['description'];
+                     document.getElementById('todos').appendChild(liItem);
+                     document.getElementById('error').classname='hidden';
+                })
+                .catch(function() {
+                     document.getElementById('error').classname='';
+                      }
+                )
+            }
+            const checkboxes = document.querySelectorAll('.check-completed');
+            for (let i = 0 ; i < checkboxes.length ; i++) {
+            const checkbox = checkboxes[i];
+            checkbox.onchange = function(e) {
+                console.log('event',e);
+                const newCompleted = e.target.checked;
+                const todo_id = e.target.dataset['id'];
+                fetch ('/todos/'+ todo_id + '/set-checked'), {
+                    method: 'POST',
+                    body: JSON.stringify( { 'checked' : newCompleted }),
+                    headers:  {
+                        'Content-Type': 'application/json' 
+                        }
+                }
+            }
+            }
+            </script>
+    </body>
+</html>
