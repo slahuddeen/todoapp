@@ -55,10 +55,13 @@ def set_checked(todo_id):
         completed = request.get_json()['checked']
         todo = Todo.query.get(todo_id)
         todo.checked = completed
-
+        db.session.commit()
+    except:
+        db.session.rollback()
     finally:
-        return render_template('index.html', data=Todo.query.all())
-
+        db.session.close()
+    return redirect(url_for('index'))
+    
 @app.route('/')
 def index():
     return render_template('index.html', data=Todo.query.all())

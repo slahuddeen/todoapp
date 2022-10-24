@@ -11,6 +11,18 @@
             list-style: none;
             padding:0;
             margin: 0;
+            width: 200px;
+        }li {
+            clear: both;
+        }
+        li button {
+         -webkit-appearance: none;
+         border: none;
+         outline: none;
+         color: red;
+         float: right; 
+         cursor: pointer;
+         font-size: large;  
         }
         </style>
     <body>
@@ -21,7 +33,11 @@
         <div class = "hidden" id = "error" style="display:none;"> Something went wrong! </div>
         <ul id="todos">
             {% for d in data%}
-            <li> <input class = "check-completed"  data-id="{{ d.id}}"  type = "checkbox" {% if d.checked %} checked {% endif %}/> {{d.description }}</li>
+            <li> 
+                <input class = "check-completed"  data-id="{{ d.id}}"  type = "checkbox" {% if d.checked %} checked {% endif %}/>
+                {{d.description }}
+                <button id="delete">&cross;</button>
+            </li>
             {% endfor %}
         </ul>
         <script>
@@ -60,13 +76,13 @@
                 console.log('event',e);
                 const newCompleted = e.target.checked;
                 const todo_id = e.target.dataset['id'];
-                fetch ('/todos/'+ todo_id + '/set-checked'), {
+                fetch ('/todos/'+ todo_id + '/set-checked', {
                     method: 'POST',
                     body: JSON.stringify( { 'checked' : newCompleted }),
                     headers:  {
                         'Content-Type': 'application/json' 
                         }
-                }
+                })
             }
             }
             </script>
