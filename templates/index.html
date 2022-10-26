@@ -36,7 +36,7 @@
             <li> 
                 <input class = "check-completed"  data-id="{{ d.id}}"  type = "checkbox" {% if d.checked %} checked {% endif %}/>
                 {{d.description }}
-                <button id="delete">&cross;</button>
+                <button class="delete-button" id="delete-button" data-id="{{ d.id }}">&cross;</button>
             </li>
             {% endfor %}
         </ul>
@@ -44,7 +44,6 @@
             console.log('test '+ document.getElementById('description').value);
             document.getElementById('form').onsubmit = function(e) {
                e.preventDefault();
-               console.log("twat");
                fetch('/todos/create', {
                             method: 'POST',
                             headers: 
@@ -69,6 +68,7 @@
                       }
                 )
             }
+
             const checkboxes = document.querySelectorAll('.check-completed');
             for (let i = 0 ; i < checkboxes.length ; i++) {
             const checkbox = checkboxes[i];
@@ -85,6 +85,18 @@
                 })
             }
             }
+
+            const deleteBtns = document.querySelectorAll('.delete-button');
+            for (let i = 0; i < deleteBtns.length; i++) {
+                const btn = deleteBtns[i];
+                btn.onclick = function(e) {
+                const todoId = e.target.dataset['id'];
+                fetch('/todos/' + todoId, {
+                    method: 'DELETE'
+                });
+                }
+            }
+
             </script>
     </body>
 </html>
