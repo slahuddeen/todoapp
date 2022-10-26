@@ -21,7 +21,7 @@ class TodoList(db.Model):
     __tablename__ = 'todolists'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
-    todos = db.relationship('Todo', backref='List', lazy=True)
+    todos = db.relationship('Todo', backref='list', lazy=True)
     
     def __repr__(self):
         return f'<TodoList {self.id} {self.name}>'
@@ -31,8 +31,8 @@ class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(), nullable=False)
     checked = db.Column(db.Boolean, nullable=True, default=False)
-    list_id = db.Column(db.Integer, db.ForeignKey ('todolists.id'), nullable=True)
-
+    list_id = db.Column(db.Integer, db.ForeignKey('todolists.id'), nullable=False)
+    
     def __repr__(self):
         return f'<Todo {self.id} {self.description} {self.checked}>'
 
@@ -46,7 +46,10 @@ def create_todo():
     try:
         #description = request.form.get('description', '')
         description = request.get_json()['description']
+        list_id = request.get_json()['list_id']
         todo = Todo(description=description)
+        active_list = TodoList.query.get(list_id)
+        todo.list = active_list
         db.session.add(todo)
         db.session.commit()
         body['description'] = todo.description
@@ -58,6 +61,7 @@ def create_todo():
         db.session.close()
     if not error:
         return jsonify(body)
+
 
 @app.route('/todos/<todo_id>/set-checked', methods=['GET', 'POST'])
 def set_checked(todo_id):
@@ -83,9 +87,17 @@ def delete_todo(todo_id):
     db.session.close()
   return jsonify({ 'success': True })
 
+@app.route('/lists/<list_id>')
+def get_list_todos(list_id):
+    return render_template('index.html', 
+      lists=TodoList.query.all(),
+      active_list=TodoList.query.get(list_id),
+      todos=Todo.query.filter_by(list_id=list_id).order_by('id').all()
+    )
+
 @app.route('/')
 def index():
-    return render_template('index.html', data=Todo.query.all())
+    return redirect(url_for('get_list_todos', list_id=1))
 
 if __name__ == '__main__':
     app.app_context()
