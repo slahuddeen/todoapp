@@ -69,7 +69,7 @@ def create_todo():
 def update_todo(todo_id):
     error = False
     try:
-        complete = request.get_json()['completed']
+        complete = request.get_json()['checked']
         todo = Todo.query.get(todo_id)
         print('Todo: ', todo)
         todo.complete = complete

@@ -150,13 +150,13 @@
                 };
             }
 
-            const checkboxes = document.querySelectorAll('.check-completed');
+            const checkboxes = document.querySelectorAll('.todo-check-completed');
             for (let i = 0 ; i < checkboxes.length ; i++) {
                 const checkbox = checkboxes[i];
                 checkbox.onchange = function(e) {
                     const newCompleted = e.target.checked;
                     const todo_id = e.target.dataset['id'];
-                    fetch ('/todos/'+ todo_id + '/set-checked', {
+                    fetch ('/todos/'+ todo_id + '/set-completed', {
                         method: 'POST',
                         body: JSON.stringify( { 'checked' : newCompleted }),
                         headers:  {
